@@ -240,8 +240,7 @@ function App() {
                 type="url"
               />
 
-              <div className="text-center pt-8">
-                <div className="flex justify-center"></div>
+              <div className="flex justify-center pt-8">
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -260,10 +259,9 @@ function App() {
                   )}
                 </button>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
-      </div>
 
         {showSuccess && (
           <SuccessModal onClose={() => setShowSuccess(false)} />
