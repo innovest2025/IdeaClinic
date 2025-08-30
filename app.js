@@ -243,7 +243,8 @@ function App() {
                 />
               </div>
 
-              <div className="text-center pt-6" flex item-center justify-center>
+              <div className="text-center pt-6" >
+                    <div className="flex justify-center">
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -262,9 +263,10 @@ function App() {
                   )}
                 </button>
               </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
+      </div>
 
         {showSuccess && (
           <SuccessModal onClose={() => setShowSuccess(false)} />
