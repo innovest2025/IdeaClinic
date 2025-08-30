@@ -52,8 +52,8 @@ function FormField({ label, value, onChange, error, placeholder, type = 'text', 
         )}
       </div>
     );
-  }
-  catch (error) {
+  } catch (error) {
     console.error('FormField component error:', error);
     return null;
+  }
 }
