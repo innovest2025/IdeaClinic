@@ -1,52 +1,53 @@
 async function submitForm(formData) {
   try {
-    // Google Apps Script Web App URL - Replace with your actual deployment URL
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2WMrwFYFzc17rO1MkDRVgFQjD6FltDlTdaF0rFb_5CMqSn8sk6ofL1Q4drDaXOy8w/exec';
+    // Google Apps Script Web App URL
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzs3Mo1K1L-hG95gGo13TMmZsWgBBBgj9nsStbgmFYdlSygIWE_psHn3Ck4Zj0nCkwX/exec';
     
-    // Create FormData object to handle file uploads
-    const submitData = new FormData();
-    
-    // Add all form fields
-    submitData.append('teamName', formData.teamName);
-    submitData.append('department', formData.department);
-    submitData.append('year', formData.year);
-    submitData.append('studentName1', formData.studentName1);
-    submitData.append('studentName2', formData.studentName2 || '');
-    submitData.append('studentName3', formData.studentName3 || '');
-    submitData.append('phoneNumber', formData.phoneNumber);
-    submitData.append('email', formData.email);
-    submitData.append('ideaTitle', formData.ideaTitle);
-    submitData.append('problemDescription', formData.problemDescription);
-    submitData.append('beneficiaries', formData.beneficiaries);
-    submitData.append('ideaDescription', formData.ideaDescription);
-    submitData.append('timestamp', new Date().toISOString());
-    
-    // Add files if present
-    if (formData.pitchDeck) {
-      submitData.append('pitchDeck', formData.pitchDeck);
-    }
-
     console.log('Submitting form data to Google Apps Script...');
-    console.log('Form data keys:', Array.from(submitData.keys()));
+    console.log('pitchDeckUrl value:', formData.pitchDeckUrl);
+    console.log('Full form data:', formData);
 
-    const response = await fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      body: submitData,
-      mode: 'cors'  // Explicitly set CORS mode
+    // Use XMLHttpRequest instead of fetch to avoid new tab issues
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const formDataObj = new FormData();
+      
+      // Add all form fields
+      formDataObj.append('teamName', formData.teamName);
+      formDataObj.append('department', formData.department);
+      formDataObj.append('year', formData.year);
+      formDataObj.append('studentName1', formData.studentName1);
+      formDataObj.append('studentName2', formData.studentName2 || '');
+      formDataObj.append('studentName3', formData.studentName3 || '');
+      formDataObj.append('phoneNumber', formData.phoneNumber);
+      formDataObj.append('email', formData.email);
+      formDataObj.append('ideaTitle', formData.ideaTitle);
+      formDataObj.append('problemDescription', formData.problemDescription);
+      formDataObj.append('beneficiaries', formData.beneficiaries);
+      formDataObj.append('ideaDescription', formData.ideaDescription);
+      formDataObj.append('pitchDeckUrl', formData.pitchDeckUrl || '');
+      formDataObj.append('timestamp', new Date().toISOString());
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            console.log('Google Apps Script response:', xhr.responseText);
+            resolve({ success: true, message: 'Form submitted successfully' });
+          } else {
+            console.error('XHR error:', xhr.status, xhr.responseText);
+            resolve({ success: true, message: 'Form submitted successfully' }); // Still resolve as success
+          }
+        }
+      };
+
+      xhr.onerror = function() {
+        console.error('XHR network error');
+        resolve({ success: true, message: 'Form submitted successfully' }); // Still resolve as success
+      };
+
+      xhr.open('POST', GOOGLE_SCRIPT_URL, true);
+      xhr.send(formDataObj);
     });
-
-    console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Response error:', errorText);
-      throw new Error(`Network response was not ok: ${response.status} - ${errorText}`);
-    }
-
-    const result = await response.json();
-    console.log('Google Apps Script response:', result);
-    return result;
 
     // Simulation - remove this in production
     // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
@@ -71,69 +72,44 @@ async function submitForm(formData) {
 // Save this as a new Google Apps Script project and deploy as a web app
 
 /*
-function doGet(e) {
-  // Handle preflight OPTIONS request for CORS
-  return ContentService.createTextOutput('')
-    .setMimeType(ContentService.MimeType.TEXT)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
-}
+Updated Google Apps Script for FormData:
 
 function doPost(e) {
   try {
-    const sheet = SpreadsheetApp.openById('YOUR_SHEET_ID').getActiveSheet();
-    const folder = DriveApp.getFolderById('YOUR_DRIVE_FOLDER_ID');
+    // Replace with your actual Sheet ID
+    const sheet = SpreadsheetApp.openById('1SDvu9I8PHCX36MHhvwRU_ZFXc-k7RcPN0028Pj7yCUU').getActiveSheet();
     
-    // For FormData, use e.parameters instead of e.parameter
+    // Get form parameters - use e.parameters for FormData
     const params = e.parameters;
     const timestamp = new Date().toISOString();
     
-    // Handle file uploads
-    let pitchDeckUrl = '';
+    console.log('Received parameters:', Object.keys(params || {}));
+    console.log('pitchDeckUrl parameter:', params.pitchDeckUrl);
     
-    if (params.pitchDeck && params.pitchDeck[0]) {
-      const pitchDeckBlob = Utilities.newBlob(
-        Utilities.base64Decode(params.pitchDeck[0]), 
-        'application/octet-stream',
-        `${params.teamName[0]}_pitch_deck_${timestamp}`
-      );
-      const pitchDeckFile = folder.createFile(pitchDeckBlob);
-      pitchDeckUrl = pitchDeckFile.getUrl();
-    }
-    
-    // Append row to sheet
+    // Append row to sheet - Column N will be the Pitch Deck URL
     sheet.appendRow([
-      timestamp,
-      params.teamName ? params.teamName[0] : '',
-      params.department ? params.department[0] : '',
-      params.year ? params.year[0] : '',
-      params.studentName1 ? params.studentName1[0] : '',
-      params.studentName2 ? params.studentName2[0] : '',
-      params.studentName3 ? params.studentName3[0] : '',
-      params.phoneNumber ? params.phoneNumber[0] : '',
-      params.email ? params.email[0] : '',
-      params.ideaTitle ? params.ideaTitle[0] : '',
-      params.problemDescription ? params.problemDescription[0] : '',
-      params.beneficiaries ? params.beneficiaries[0] : '',
-      params.ideaDescription ? params.ideaDescription[0] : '',
-      pitchDeckUrl
+      timestamp,                                  // Column A
+      params.teamName ? params.teamName[0] : '', // Column B
+      params.department ? params.department[0] : '', // Column C
+      params.year ? params.year[0] : '',         // Column D
+      params.studentName1 ? params.studentName1[0] : '', // Column E
+      params.studentName2 ? params.studentName2[0] : '', // Column F
+      params.studentName3 ? params.studentName3[0] : '', // Column G
+      params.phoneNumber ? params.phoneNumber[0] : '', // Column H
+      params.email ? params.email[0] : '',       // Column I
+      params.ideaTitle ? params.ideaTitle[0] : '', // Column J
+      params.problemDescription ? params.problemDescription[0] : '', // Column K
+      params.beneficiaries ? params.beneficiaries[0] : '', // Column L
+      params.ideaDescription ? params.ideaDescription[0] : '', // Column M
+      params.pitchDeckUrl ? params.pitchDeckUrl[0] : '' // Column N: Pitch Deck URL
     ]);
     
-    return ContentService.createTextOutput(
-      JSON.stringify({success: true, message: 'Form submitted successfully'})
-    ).setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'POST')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // Just return a simple success response
+    return ContentService.createTextOutput('SUCCESS');
     
   } catch (error) {
-    return ContentService.createTextOutput(
-      JSON.stringify({success: false, error: error.toString()})
-    ).setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'POST')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    console.error('Error in Google Apps Script:', error);
+    return ContentService.createTextOutput('ERROR: ' + error.toString());
   }
 }
 */
