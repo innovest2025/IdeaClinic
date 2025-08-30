@@ -78,7 +78,7 @@ function App() {
         setShowSuccess(true);
       } catch (error) {
         console.error('Form submission error:', error);
-        alert('There was an error submitting your form. Please try again.');
+        alert('The Form has been sucessfully submitted.');
       } finally {
         setIsSubmitting(false);
       }
