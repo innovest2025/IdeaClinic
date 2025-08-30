@@ -243,7 +243,7 @@ function App() {
                 />
               </div>
 
-              <div className="text-center pt-6">
+              <div className="text-center pt-6" center>
                 <button
                   type="submit"
                   disabled={isSubmitting}
