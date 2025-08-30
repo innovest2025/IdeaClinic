@@ -76,7 +76,10 @@ function App() {
       try {
         await submitForm(formData);
         setShowSuccess(true);
-      }  finally {
+      } catch (error) {
+        console.error('Form submission error:', error);
+        alert('There was an error submitting your form. Please try again.');
+      } finally {
         setIsSubmitting(false);
       }
     };
