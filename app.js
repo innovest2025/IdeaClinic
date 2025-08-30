@@ -243,7 +243,7 @@ function App() {
                 />
               </div>
 
-              <div className="text-center pt-6" flex justify-center>
+              <div className="text-center pt-6" flex item-center justify-center>
                 <button
                   type="submit"
                   disabled={isSubmitting}
