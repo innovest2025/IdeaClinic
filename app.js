@@ -49,7 +49,7 @@ function App() {
       problemDescription: '',
       beneficiaries: '',
       ideaDescription: '',
-      pitchDeck: null
+      pitchDeckUrl: ''
     });
 
     const [errors, setErrors] = React.useState({});
@@ -78,7 +78,7 @@ function App() {
         setShowSuccess(true);
       } catch (error) {
         console.error('Form submission error:', error);
-        alert('The Form has been sucessfully submitted.');
+        alert('There was an error submitting your form. Please try again.');
       } finally {
         setIsSubmitting(false);
       }
@@ -231,24 +231,21 @@ function App() {
                 rows={6}
               />
 
-              <div className="max-w-md mx-auto">
-                <FileUpload
-                  label="Upload Pitch Deck"
-                  file={formData.pitchDeck}
-                  onChange={(file) => handleInputChange('pitchDeck', file)}
-                  error={errors.pitchDeck}
-                  accept=".pdf,.ppt,.pptx"
-                  maxSize={20}
-                  description="PDF, PPT, PPTX (max 20 MB)"
-                />
-              </div>
+              <FormField
+                label="Pitch Deck URL"
+                value={formData.pitchDeckUrl}
+                onChange={(value) => handleInputChange('pitchDeckUrl', value)}
+                error={errors.pitchDeckUrl}
+                placeholder="https://example.com/your-pitch-deck-link"
+                type="url"
+              />
 
-              <div className="text-center pt-6" >
-                    <div className="flex justify-center">
+              <div className="text-center pt-8">
+                <div className="flex justify-center"></div>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn-primary w-full md:w-auto flex items-center justify-center gap-2"
+                  className="btn-primary px-8 py-4 flex items-center justify-center gap-2 min-w-[200px]"
                 >
                   {isSubmitting ? (
                     <>
