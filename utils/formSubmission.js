@@ -1,7 +1,7 @@
 async function submitForm(formData) {
   try {
     // Google Apps Script Web App URL
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzs3Mo1K1L-hG95gGo13TMmZsWgBBBgj9nsStbgmFYdlSygIWE_psHn3Ck4Zj0nCkwX/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylK3CO0oAyE_ha_9S_H_f40jYMHCfyivLMGWkUvjVMjOc6F1R_fbVa6hMQzTN5YFJ-/exec';
     
     console.log('Submitting form data to Google Apps Script...');
     console.log('pitchDeckUrl value:', formData.pitchDeckUrl);
